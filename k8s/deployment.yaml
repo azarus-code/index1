@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: index1
+  namespace: default
+  labels:
+    'backstage.io/kubernetes-id': 'index1'
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: index1
+  template:
+    metadata:
+      labels:
+        app: index1
+        'backstage.io/kubernetes-id': 'index1'
+    spec:
+      imagePullSecrets:
+      - name: registry-auth
+      containers:
+        - name: index1
+          image: idpdeveacr.azurecr.io/index1:latest
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: index1
+  namespace: default
+  labels:
+    #tekton.dev/pipelines: default/springboot-pipeline
+    'backstage.io/kubernetes-id': 'index1'
+spec:
+  type: LoadBalancer
+  selector:
+    app: index1
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
